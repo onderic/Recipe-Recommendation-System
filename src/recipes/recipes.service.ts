@@ -42,8 +42,34 @@ export class RecipesService {
     }
   }
 
-  update(id: number, updateRecipeDto: UpdateRecipeDto) {
-    return `This action updates a #${id} recipe`;
+  async update(id: string, updateRecipeDto: UpdateRecipeDto): Promise<Recipe> {
+    try {
+      const existingRecipe = await this.recipeModel.findById(id).exec();
+      if (!existingRecipe) {
+        throw new NotFoundException(`Recipe with ID ${id} not found`);
+      }
+      // Update the recipe fields with the values from updateRecipeDto
+      if (updateRecipeDto.title) {
+        existingRecipe.title = updateRecipeDto.title;
+      }
+      if (updateRecipeDto.description) {
+        existingRecipe.description = updateRecipeDto.description;
+      }
+      if (updateRecipeDto.ingredients) {
+        existingRecipe.ingredients = updateRecipeDto.ingredients;
+      }
+      if (updateRecipeDto.instructions) {
+        existingRecipe.instructions = updateRecipeDto.instructions;
+      }
+      if (updateRecipeDto.imageUrl) {
+        existingRecipe.imageUrl = updateRecipeDto.imageUrl;
+      }
+
+      const updatedRecipe = await existingRecipe.save();
+      return updatedRecipe;
+    } catch (error) {
+      throw new NotFoundException(`Recipe with ID ${id} not found`);
+    }
   }
 
   remove(id: number) {

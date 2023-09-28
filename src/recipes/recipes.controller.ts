@@ -3,12 +3,12 @@ import {
   Get,
   Post,
   Body,
-  Patch,
   Param,
   Delete,
   ParseIntPipe,
   Query,
   NotFoundException,
+  Patch,
 } from '@nestjs/common';
 import { RecipesService } from './recipes.service';
 import { CreateRecipeDto } from './dto/create-recipe.dto';
@@ -46,8 +46,22 @@ export class RecipesController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateRecipeDto: UpdateRecipeDto) {
-    return this.recipesService.update(+id, updateRecipeDto);
+  async update(
+    @Param('id') id: string,
+    @Body() updateRecipeDto: UpdateRecipeDto,
+  ): Promise<Recipe> {
+    try {
+      const updatedRecipe = await this.recipesService.update(
+        id,
+        updateRecipeDto,
+      );
+      return updatedRecipe;
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw new NotFoundException(error.message);
+      }
+      throw error;
+    }
   }
 
   @Delete(':id')
