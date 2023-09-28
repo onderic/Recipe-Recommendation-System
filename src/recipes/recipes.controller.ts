@@ -8,6 +8,7 @@ import {
   Delete,
   ParseIntPipe,
   Query,
+  NotFoundException,
 } from '@nestjs/common';
 import { RecipesService } from './recipes.service';
 import { CreateRecipeDto } from './dto/create-recipe.dto';
@@ -32,8 +33,16 @@ export class RecipesController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.recipesService.findOne(+id);
+  async findOne(@Param('id') id: string): Promise<Recipe> {
+    try {
+      const recipe = await this.recipesService.findOne(id);
+      return recipe;
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw new NotFoundException(error.message);
+      }
+      throw error;
+    }
   }
 
   @Patch(':id')

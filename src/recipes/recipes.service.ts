@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { CreateRecipeDto } from './dto/create-recipe.dto';
 import { UpdateRecipeDto } from './dto/update-recipe.dto';
@@ -30,8 +30,16 @@ export class RecipesService {
     return { recipes, total };
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} recipe`;
+  async findOne(id: string): Promise<Recipe> {
+    try {
+      const recipe = await this.recipeModel.findById(id).exec();
+      if (!recipe) {
+        throw new NotFoundException(`Recipe not found`);
+      }
+      return recipe;
+    } catch (error) {
+      throw new NotFoundException(`Recipe with ID ${id} not found`);
+    }
   }
 
   update(id: number, updateRecipeDto: UpdateRecipeDto) {
