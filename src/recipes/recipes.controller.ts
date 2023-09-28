@@ -65,7 +65,14 @@ export class RecipesController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.recipesService.remove(+id);
+  async remove(@Param('id') id: string): Promise<void> {
+    try {
+      await this.recipesService.remove(id);
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw new NotFoundException(error.message);
+      }
+      throw error;
+    }
   }
 }

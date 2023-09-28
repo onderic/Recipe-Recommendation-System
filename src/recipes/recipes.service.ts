@@ -72,7 +72,16 @@ export class RecipesService {
     }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} recipe`;
+  async remove(id: string): Promise<void> {
+    try {
+      const existingRecipe = await this.recipeModel.findById(id).exec();
+      if (!existingRecipe) {
+        throw new NotFoundException(`Recipe with ID ${id} not found`);
+      }
+
+      await existingRecipe.deleteOne();
+    } catch (error) {
+      throw new NotFoundException(`Recipe with ID ${id} not found`);
+    }
   }
 }
