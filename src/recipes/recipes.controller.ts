@@ -6,21 +6,20 @@ import {
   Param,
   Delete,
   ParseIntPipe,
-  Query,
-  NotFoundException,
   Patch,
+  Query,
 } from '@nestjs/common';
 import { RecipesService } from './recipes.service';
 import { CreateRecipeDto } from './dto/create-recipe.dto';
 import { UpdateRecipeDto } from './dto/update-recipe.dto';
-import { Recipe } from './schemas/recipe.schema';
+import { Recipe } from './entities/recipe.entity'; // Import the correct entity
 
 @Controller('recipes')
 export class RecipesController {
   constructor(private readonly recipesService: RecipesService) {}
 
   @Post()
-  create(@Body() createRecipeDto: CreateRecipeDto) {
+  create(@Body() createRecipeDto: CreateRecipeDto): Promise<Recipe> {
     return this.recipesService.create(createRecipeDto);
   }
 
@@ -32,47 +31,25 @@ export class RecipesController {
     return this.recipesService.findAll(page, pageSize);
   }
 
-  @Get(':id')
-  async findOne(@Param('id') id: string): Promise<Recipe> {
-    try {
-      const recipe = await this.recipesService.findOne(id);
-      return recipe;
-    } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw new NotFoundException(error.message);
-      }
-      throw error;
-    }
+  @Get(':recipe_id')
+  async findOne(
+    @Param('recipe_id', ParseIntPipe) recipe_id: number,
+  ): Promise<Recipe> {
+    return this.recipesService.findOne(recipe_id);
   }
 
-  @Patch(':id')
+  @Patch(':recipe_id')
   async update(
-    @Param('id') id: string,
+    @Param('recipe_id', ParseIntPipe) recipe_id: number,
     @Body() updateRecipeDto: UpdateRecipeDto,
   ): Promise<Recipe> {
-    try {
-      const updatedRecipe = await this.recipesService.update(
-        id,
-        updateRecipeDto,
-      );
-      return updatedRecipe;
-    } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw new NotFoundException(error.message);
-      }
-      throw error;
-    }
+    return this.recipesService.update(recipe_id, updateRecipeDto);
   }
 
-  @Delete(':id')
-  async remove(@Param('id') id: string): Promise<void> {
-    try {
-      await this.recipesService.remove(id);
-    } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw new NotFoundException(error.message);
-      }
-      throw error;
-    }
+  @Delete(':recipe_id')
+  async remove(
+    @Param('recipe_id', ParseIntPipe) recipe_id: number,
+  ): Promise<void> {
+    return this.recipesService.remove(recipe_id);
   }
 }

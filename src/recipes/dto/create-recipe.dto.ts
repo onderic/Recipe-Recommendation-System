@@ -1,31 +1,25 @@
-import { IsString, IsNotEmpty, IsArray, ArrayMinSize } from 'class-validator';
+import { IsNotEmpty, IsString, IsOptional } from 'class-validator';
 
 export class CreateRecipeDto {
+  recipe_id: number;
+
   @IsString()
   @IsNotEmpty()
   title: string;
 
   @IsString()
   @IsNotEmpty()
-  description: string;
-
-  @IsArray()
-  @ArrayMinSize(1, { message: 'At least one ingredient is required' })
-  ingredients: IngredientDto[];
+  ingredients: string;
 
   @IsString()
   @IsNotEmpty()
   instructions: string;
 
-  imageUrl?: string;
-}
-
-export class IngredientDto {
   @IsString()
   @IsNotEmpty()
-  name: string;
+  imageName: string;
 
   @IsString()
-  @IsNotEmpty()
-  quantity: string;
+  @IsOptional() // Mark as optional
+  cleanedIngredients: string;
 }

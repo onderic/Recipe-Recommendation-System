@@ -5,8 +5,9 @@ import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersModule } from './users/users.module';
 import { User } from './users/entities/user.entity';
+import { Recipe } from './recipes/entities/recipe.entity';
 import { AuthModule } from './auth/auth.module';
-// import { RecipesModule } from './recipes/recipes.module';
+import { RecipesModule } from './recipes/recipes.module';
 
 @Module({
   imports: [
@@ -19,14 +20,14 @@ import { AuthModule } from './auth/auth.module';
       port: 5432,
       password: '0909',
       username: 'onderi',
-      entities: [User],
+      entities: [User, Recipe],
       database: 'myrecipes',
       synchronize: true,
       logging: true,
     }),
     UsersModule,
     AuthModule,
-    // RecipesModule,
+    RecipesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
