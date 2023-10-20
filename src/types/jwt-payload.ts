@@ -1,7 +1,5 @@
-import { ObjectId } from 'mongodb';
-
 export class JwtPayload {
-  _id: ObjectId;
+  _id: string;
   email: string;
   username: string;
   role: string;

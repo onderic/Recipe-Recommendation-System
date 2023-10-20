@@ -6,9 +6,9 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { User, UserDocument } from '../users/schemas/user.schema';
+import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
+import { User } from '../users/entities/user.entity';
 import { ConfigService } from '@nestjs/config';
 import AuthToken from '../types/authToken';
 import { JwtPayload } from '../types/jwt-payload';
@@ -16,15 +16,15 @@ import { JwtPayload } from '../types/jwt-payload';
 @Injectable()
 export class AuthService {
   constructor(
-    @InjectModel(User.name)
-    private userModel: Model<UserDocument>,
+    @InjectRepository(User)
+    private userRepository: Repository<User>,
     private jwtService: JwtService,
     private configService: ConfigService,
   ) {}
 
   async signIn(email: string, plainPassword: string) {
     try {
-      const user = await this.userModel.findOne({ email });
+      const user = await this.userRepository.findOne({ where: { email } });
       if (!user) {
         throw new UnauthorizedException('Invalid credentials');
       }
@@ -36,7 +36,8 @@ export class AuthService {
       if (!isPasswordMatch) {
         throw new UnauthorizedException('Invalid credentials');
       }
-      await user.updateOne({ lastLogin: new Date() });
+
+      await this.userRepository.update(user.id, { lastLogin: new Date() });
 
       return await this.loginToken(user);
     } catch (error) {
@@ -44,9 +45,9 @@ export class AuthService {
     }
   }
 
-  async loginToken(user: UserDocument): Promise<AuthToken> {
+  async loginToken(user: User): Promise<AuthToken> {
     const payload: JwtPayload = {
-      _id: user._id,
+      _id: user.id,
       email: user.email,
       username: user.username,
       role: user.role,
@@ -64,7 +65,8 @@ export class AuthService {
         }),
       ]);
 
-      await user.updateOne({ refreshToken: refreshToken });
+      await this.userRepository.update(user.id, { refreshToken: refreshToken });
+
       return {
         access_token: accessToken,
         refresh_token: refreshToken,
@@ -75,7 +77,9 @@ export class AuthService {
   }
 
   async refresh(refreshToken: string) {
-    const user = await this.userModel.findOne({ refreshToken: refreshToken });
+    const user = await this.userRepository.findOne({
+      where: { refreshToken },
+    });
 
     if (!user) {
       throw new HttpException('Invalid credentials', HttpStatus.UNAUTHORIZED);
@@ -89,7 +93,7 @@ export class AuthService {
       throw new HttpException('Invalid user ID', HttpStatus.BAD_REQUEST);
     }
 
-    const user = await this.userModel.findByIdAndUpdate(_id, {
+    const user = await this.userRepository.update(_id, {
       refreshToken: null,
     });
 

@@ -32,7 +32,7 @@ export class User {
   refreshToken: string;
 
   @Column({ type: 'varchar', nullable: true })
-  lastLogin: string;
+  lastLogin: Date;
 
   @CreateDateColumn()
   createdAt: Date;

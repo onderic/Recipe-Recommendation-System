@@ -4,12 +4,12 @@ import { JwtModule } from '@nestjs/jwt';
 import { AuthController } from './auth.controller';
 import { JwtStrategy } from './strategy/jwt.strategy';
 import { RefreshStrategy } from './strategy/refresh.strategy';
-import { User, UserSchema } from '../users/schemas/user.schema';
-import { MongooseModule } from '@nestjs/mongoose';
+import { User } from '../users/entities/user.entity'; // Import the User entity
+import { TypeOrmModule } from '@nestjs/typeorm';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
+    TypeOrmModule.forFeature([User]), // Register the User entity
 
     JwtModule.register({}),
   ],
