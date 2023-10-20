@@ -2,20 +2,31 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { MongooseModule } from '@nestjs/mongoose';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersModule } from './users/users.module';
-import { AuthModule } from './auth/auth.module';
-import { RecipesModule } from './recipes/recipes.module';
+import { User } from './users/entities/user.entity';
+// import { AuthModule } from './auth/auth.module';
+// import { RecipesModule } from './recipes/recipes.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
     }),
-    MongooseModule.forRoot('mongodb://localhost:27017/recipe'),
+    TypeOrmModule.forRoot({
+      type: 'postgres',
+      host: 'localhost',
+      port: 5432,
+      password: '0909',
+      username: 'onderi',
+      entities: [User],
+      database: 'myrecipes',
+      synchronize: true,
+      logging: true,
+    }),
     UsersModule,
-    AuthModule,
-    RecipesModule,
+    // AuthModule,
+    // RecipesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
