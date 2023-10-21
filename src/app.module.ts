@@ -8,6 +8,7 @@ import { User } from './users/entities/user.entity';
 import { Recipe } from './recipes/entities/recipe.entity';
 import { AuthModule } from './auth/auth.module';
 import { RecipesModule } from './recipes/recipes.module';
+import { RecommendationsModule } from './recommendations/recommendations.module';
 
 @Module({
   imports: [
@@ -23,11 +24,12 @@ import { RecipesModule } from './recipes/recipes.module';
       entities: [User, Recipe],
       database: 'myrecipes',
       synchronize: true,
-      logging: true,
+      logging: false,
     }),
     UsersModule,
     AuthModule,
     RecipesModule,
+    RecommendationsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
