@@ -1,22 +1,22 @@
 import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
 
-@Entity({ name: 'recipies' }) // Set the table name explicitly
+@Entity({ name: 'recipies' })
 export class Recipe {
   @PrimaryGeneratedColumn()
-  recipe_id: number;
+  id: number;
 
-  @Column({ name: 'Title', nullable: true })
+  @Column({ name: 'Title' })
   title: string;
 
-  @Column({ name: 'Ingredients', nullable: true })
+  @Column({ name: 'Ingredients' })
   ingredients: string;
 
-  @Column({ name: 'Instructions', nullable: true })
+  @Column({ name: 'Instructions' })
   instructions: string;
 
-  @Column({ name: 'Image_Name', nullable: true })
+  @Column({ name: 'Image_Name' })
   imageName: string;
 
-  @Column({ name: 'Cleaned_Ingredients', nullable: true }) // Mark as optional
+  @Column({ name: 'Cleaned_Ingredients' })
   cleanedIngredients: string;
 }

@@ -31,25 +31,21 @@ export class RecipesController {
     return this.recipesService.findAll(page, pageSize);
   }
 
-  @Get(':recipe_id')
-  async findOne(
-    @Param('recipe_id', ParseIntPipe) recipe_id: number,
-  ): Promise<Recipe> {
-    return this.recipesService.findOne(recipe_id);
+  @Get(':id')
+  async findOne(@Param('id', ParseIntPipe) id: number): Promise<Recipe> {
+    return this.recipesService.findOne(id);
   }
 
-  @Patch(':recipe_id')
+  @Patch(':id')
   async update(
-    @Param('recipe_id', ParseIntPipe) recipe_id: number,
+    @Param('id', ParseIntPipe) id: number,
     @Body() updateRecipeDto: UpdateRecipeDto,
   ): Promise<Recipe> {
-    return this.recipesService.update(recipe_id, updateRecipeDto);
+    return this.recipesService.update(id, updateRecipeDto);
   }
 
-  @Delete(':recipe_id')
-  async remove(
-    @Param('recipe_id', ParseIntPipe) recipe_id: number,
-  ): Promise<void> {
-    return this.recipesService.remove(recipe_id);
+  @Delete(':id')
+  async remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
+    return this.recipesService.remove(id);
   }
 }

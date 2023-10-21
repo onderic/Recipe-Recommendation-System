@@ -31,9 +31,9 @@ export class RecipesService {
     return { recipes, total };
   }
 
-  async findOne(recipe_id: number): Promise<Recipe> {
+  async findOne(id: number): Promise<Recipe> {
     const recipe = await this.recipeRepository.findOne({
-      where: { recipe_id },
+      where: { id },
     });
     if (!recipe) {
       throw new NotFoundException(`Recipe not found`);
@@ -41,15 +41,12 @@ export class RecipesService {
     return recipe;
   }
 
-  async update(
-    recipe_id: number,
-    updateRecipeDto: UpdateRecipeDto,
-  ): Promise<Recipe> {
+  async update(id: number, updateRecipeDto: UpdateRecipeDto): Promise<Recipe> {
     const existingRecipe = await this.recipeRepository.findOne({
-      where: { recipe_id },
+      where: { id },
     });
     if (!existingRecipe) {
-      throw new NotFoundException(`Recipe with ID ${recipe_id} not found`);
+      throw new NotFoundException(`Recipe with ID ${id} not found`);
     }
 
     if (updateRecipeDto.title) {
@@ -72,12 +69,12 @@ export class RecipesService {
     return updatedRecipe;
   }
 
-  async remove(recipe_id: number): Promise<void> {
+  async remove(id: number): Promise<void> {
     const existingRecipe = await this.recipeRepository.findOne({
-      where: { recipe_id },
+      where: { id },
     });
     if (!existingRecipe) {
-      throw new NotFoundException(`Recipe with ID ${recipe_id} not found`);
+      throw new NotFoundException(`Recipe with ID ${id} not found`);
     }
 
     await this.recipeRepository.remove(existingRecipe);
