@@ -8,7 +8,7 @@ import { User } from './users/entities/user.entity';
 import { Recipe } from './recipes/entities/recipe.entity';
 import { AuthModule } from './auth/auth.module';
 import { RecipesModule } from './recipes/recipes.module';
-import { RecommendationsModule } from './recommendations/recommendations.module';
+import { UserProfileModule } from './user-profile/user-profile.module';
 
 @Module({
   imports: [
@@ -29,7 +29,7 @@ import { RecommendationsModule } from './recommendations/recommendations.module'
     UsersModule,
     AuthModule,
     RecipesModule,
-    RecommendationsModule,
+    UserProfileModule,
   ],
   controllers: [AppController],
   providers: [AppService],
