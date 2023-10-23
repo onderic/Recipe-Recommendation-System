@@ -45,7 +45,7 @@ export class RecipesController {
   async update(
     @Param('id') id: string,
     @Body() updateRecipeDto: UpdateRecipeDto,
-    @CurrentUser() user: JwtPayload, // Use the @User() decorator to get the user data
+    @CurrentUser() user: JwtPayload,
   ): Promise<Recipe> {
     return this.recipesService.update(user, id, updateRecipeDto);
   }

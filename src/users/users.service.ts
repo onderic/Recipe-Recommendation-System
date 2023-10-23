@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { Repository } from 'typeorm';
@@ -6,6 +10,7 @@ import { User } from './entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
 import { v4 as uuidv4 } from 'uuid';
+import { JwtPayload } from 'src/types/jwt-payload';
 
 @Injectable()
 export class UsersService {
@@ -42,7 +47,12 @@ export class UsersService {
     return this.userRepository.save(user);
   }
 
-  async findAll(): Promise<User[]> {
+  async findAll(s_user: JwtPayload): Promise<User[]> {
+    if (s_user.role !== 'superadmin') {
+      throw new UnauthorizedException(
+        'Only superusers can access user records!',
+      );
+    }
     return this.userRepository.find();
   }
 
@@ -50,17 +60,29 @@ export class UsersService {
     return this.userRepository.findOne({ where: { email } });
   }
 
-  async update(id: string, updateUserDto: UpdateUserDto): Promise<User> {
+  async update(
+    s_user: JwtPayload,
+    id: string,
+    updateUserDto: UpdateUserDto,
+  ): Promise<User> {
     // Assuming UpdateUserDto contains fields that should be updated
     const user = await this.userRepository.findOne({ where: { id } });
 
     if (!user) {
       throw new BadRequestException('User not found');
     }
-
+    if (s_user.role !== 'superadmin') {
+      throw new UnauthorizedException(
+        'Only superusers can update user records',
+      );
+    }
     // Update the user with the provided data
     if (updateUserDto.username) {
       user.username = updateUserDto.username;
+    }
+
+    if (updateUserDto.role) {
+      user.role = updateUserDto.role;
     }
 
     // Add more fields as needed
