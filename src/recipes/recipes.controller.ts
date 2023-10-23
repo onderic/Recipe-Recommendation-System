@@ -8,12 +8,17 @@ import {
   ParseIntPipe,
   Patch,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { RecipesService } from './recipes.service';
 import { CreateRecipeDto } from './dto/create-recipe.dto';
 import { UpdateRecipeDto } from './dto/update-recipe.dto';
-import { Recipe } from './entities/recipe.entity'; // Import the correct entity
+import { Recipe } from './entities/recipe.entity';
+import { CurrentUser } from '../decorators/current-user.decorator';
+import { JwtPayload } from '../types/jwt-payload';
+import { JwtAuthGuard } from '../auth/guard/jwt.guard';
 
+@UseGuards(JwtAuthGuard)
 @Controller('recipes')
 export class RecipesController {
   constructor(private readonly recipesService: RecipesService) {}
@@ -32,20 +37,21 @@ export class RecipesController {
   }
 
   @Get(':id')
-  async findOne(@Param('id', ParseIntPipe) id: number): Promise<Recipe> {
+  async findOne(@Param('id', ParseIntPipe) id: string): Promise<Recipe> {
     return this.recipesService.findOne(id);
   }
 
-  @Patch(':id')
+  @Patch('update/:id')
   async update(
-    @Param('id', ParseIntPipe) id: number,
+    @Param('id') id: string,
     @Body() updateRecipeDto: UpdateRecipeDto,
+    @CurrentUser() user: JwtPayload, // Use the @User() decorator to get the user data
   ): Promise<Recipe> {
-    return this.recipesService.update(id, updateRecipeDto);
+    return this.recipesService.update(user, id, updateRecipeDto);
   }
 
   @Delete(':id')
-  async remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
+  async remove(@Param('id', ParseIntPipe) id: string): Promise<void> {
     return this.recipesService.remove(id);
   }
 }

@@ -1,9 +1,14 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateRecipeDto } from './dto/create-recipe.dto';
 import { UpdateRecipeDto } from './dto/update-recipe.dto';
 import { Recipe } from './entities/recipe.entity';
 import { Repository } from 'typeorm';
+import { JwtPayload } from 'src/types/jwt-payload';
 
 @Injectable()
 export class RecipesService {
@@ -31,7 +36,7 @@ export class RecipesService {
     return { recipes, total };
   }
 
-  async findOne(id: number): Promise<Recipe> {
+  async findOne(id: string): Promise<Recipe> {
     const recipe = await this.recipeRepository.findOne({
       where: { id },
     });
@@ -41,12 +46,21 @@ export class RecipesService {
     return recipe;
   }
 
-  async update(id: number, updateRecipeDto: UpdateRecipeDto): Promise<Recipe> {
+  async update(
+    user: JwtPayload,
+    id: string,
+    updateRecipeDto: UpdateRecipeDto,
+  ): Promise<Recipe> {
     const existingRecipe = await this.recipeRepository.findOne({
       where: { id },
     });
+
     if (!existingRecipe) {
+      console.log(`Recipe with ID ${id} not found`);
       throw new NotFoundException(`Recipe with ID ${id} not found`);
+    }
+    if (user.role !== 'superadmin') {
+      throw new UnauthorizedException('Only superusers can update recipes');
     }
 
     if (updateRecipeDto.title) {
@@ -69,7 +83,7 @@ export class RecipesService {
     return updatedRecipe;
   }
 
-  async remove(id: number): Promise<void> {
+  async remove(id: string): Promise<void> {
     const existingRecipe = await this.recipeRepository.findOne({
       where: { id },
     });
