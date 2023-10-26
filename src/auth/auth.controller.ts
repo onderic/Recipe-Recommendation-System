@@ -26,14 +26,13 @@ export class AuthController {
   @UseGuards(AuthGuard)
   @Get('profile')
   getProfile(@Request() req) {
-    console.log(req.user);
     return req.user;
   }
 
   @UseGuards(JwtAuthGuard)
   @Post('logout')
   signOut(@CurrentUser('_id') userId: string) {
-    console.log(userId);
+    // console.log(userId);
     return this.authService.signOut(userId);
   }
 }
