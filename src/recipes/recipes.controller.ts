@@ -18,11 +18,11 @@ import { CurrentUser } from '../decorators/current-user.decorator';
 import { JwtPayload } from '../types/jwt-payload';
 import { JwtAuthGuard } from '../auth/guard/jwt.guard';
 
-@UseGuards(JwtAuthGuard)
 @Controller('recipes')
 export class RecipesController {
   constructor(private readonly recipesService: RecipesService) {}
 
+  @UseGuards(JwtAuthGuard)
   @Post()
   async create(
     @CurrentUser() user: JwtPayload,
@@ -45,6 +45,7 @@ export class RecipesController {
   }
 
   @Patch('update/:id')
+  @UseGuards(JwtAuthGuard)
   async update(
     @Param('id') id: string,
     @Body() updateRecipeDto: UpdateRecipeDto,
@@ -54,10 +55,11 @@ export class RecipesController {
   }
 
   @Delete(':id')
+  @UseGuards(JwtAuthGuard)
   async remove(
     @Param('id') id: string,
     @CurrentUser() user: JwtPayload,
-  ): Promise<void> {
+  ): Promise<string | void> {
     return this.recipesService.remove(user, id);
   }
 }
