@@ -24,8 +24,11 @@ export class RecipesController {
   constructor(private readonly recipesService: RecipesService) {}
 
   @Post()
-  create(@Body() createRecipeDto: CreateRecipeDto): Promise<Recipe> {
-    return this.recipesService.create(createRecipeDto);
+  async create(
+    @CurrentUser() user: JwtPayload,
+    @Body() createRecipeDto: CreateRecipeDto,
+  ): Promise<Recipe> {
+    return this.recipesService.createRecipe(createRecipeDto, user);
   }
 
   @Get()
@@ -51,7 +54,10 @@ export class RecipesController {
   }
 
   @Delete(':id')
-  async remove(@Param('id', ParseIntPipe) id: string): Promise<void> {
-    return this.recipesService.remove(id);
+  async remove(
+    @Param('id') id: string,
+    @CurrentUser() user: JwtPayload,
+  ): Promise<void> {
+    return this.recipesService.remove(user, id);
   }
 }

@@ -2,6 +2,7 @@ import { IsNotEmpty, IsString, IsOptional } from 'class-validator';
 
 export class CreateRecipeDto {
   id: string;
+  createdBy: string;
 
   @IsString()
   @IsNotEmpty()

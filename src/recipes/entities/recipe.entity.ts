@@ -1,4 +1,11 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  JoinColumn,
+} from 'typeorm';
+import { User } from '../../users/entities/user.entity';
 
 @Entity({ name: 'recipies' })
 export class Recipe {
@@ -17,6 +24,10 @@ export class Recipe {
   @Column({ name: 'Image_Name' })
   imageName: string;
 
-  @Column({ name: 'Cleaned_Ingredients' })
-  cleanedIngredients: string;
+  @Column({ name: 'createdBy', type: 'string', nullable: false }) // Set the type as string
+  createdBy: string; // Type createdBy as string
+
+  @ManyToOne(() => User)
+  @JoinColumn({ name: 'createdBy', referencedColumnName: 'id' }) // Use 'id' as the referencedColumnName
+  creator: User;
 }

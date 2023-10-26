@@ -17,9 +17,16 @@ export class RecipesService {
     private readonly recipeRepository: Repository<Recipe>,
   ) {}
 
-  async create(createRecipeDto: CreateRecipeDto): Promise<Recipe> {
-    const createdRecipe = this.recipeRepository.create(createRecipeDto);
-    return this.recipeRepository.save(createdRecipe);
+  async createRecipe(
+    createRecipeDto: CreateRecipeDto,
+    user: JwtPayload,
+  ): Promise<Recipe> {
+    const recipe = this.recipeRepository.create({
+      ...createRecipeDto,
+      createdBy: user._id,
+    });
+
+    return this.recipeRepository.save(recipe);
   }
 
   async findAll(
@@ -39,7 +46,9 @@ export class RecipesService {
   async findOne(id: string): Promise<Recipe> {
     const recipe = await this.recipeRepository.findOne({
       where: { id },
+      // relations: ['createdBy'],
     });
+    console.log(recipe);
     if (!recipe) {
       throw new NotFoundException(`Recipe not found`);
     }
@@ -54,13 +63,16 @@ export class RecipesService {
     const existingRecipe = await this.recipeRepository.findOne({
       where: { id },
     });
-
+    // console.log('creator', existingRecipe.createdBy);
+    // console.log('user', user._id);
     if (!existingRecipe) {
       console.log(`Recipe with ID ${id} not found`);
       throw new NotFoundException(`Recipe with ID ${id} not found`);
     }
-    if (user.role !== 'superadmin') {
-      throw new UnauthorizedException('Only superusers can update recipes');
+    if (user.role !== 'superadmin' && user._id !== existingRecipe.createdBy) {
+      throw new UnauthorizedException(
+        'You do not have permission to update this recipe',
+      );
     }
 
     if (updateRecipeDto.title) {
@@ -75,22 +87,31 @@ export class RecipesService {
     if (updateRecipeDto.imageName) {
       existingRecipe.imageName = updateRecipeDto.imageName;
     }
-    if (updateRecipeDto.cleanedIngredients) {
-      existingRecipe.cleanedIngredients = updateRecipeDto.cleanedIngredients;
-    }
+    // if (updateRecipeDto.cleanedIngredients) {
+    //   existingRecipe.cleanedIngredients = updateRecipeDto.cleanedIngredients;
+    // }
 
     const updatedRecipe = await this.recipeRepository.save(existingRecipe);
     return updatedRecipe;
   }
 
-  async remove(id: string): Promise<void> {
+  async remove(user: JwtPayload, id: string): Promise<string> {
     const existingRecipe = await this.recipeRepository.findOne({
       where: { id },
     });
+
+    if (user.role !== 'superadmin') {
+      throw new UnauthorizedException(
+        'You do not have permission to delete this recipe',
+      );
+    }
+
     if (!existingRecipe) {
       throw new NotFoundException(`Recipe with ID ${id} not found`);
     }
 
     await this.recipeRepository.remove(existingRecipe);
+
+    return 'Recipe deleted successfully';
   }
 }
