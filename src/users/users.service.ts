@@ -65,7 +65,6 @@ export class UsersService {
     id: string,
     updateUserDto: UpdateUserDto,
   ): Promise<User> {
-    // Assuming UpdateUserDto contains fields that should be updated
     const user = await this.userRepository.findOne({ where: { id } });
 
     if (!user) {
